@@ -8,10 +8,21 @@
 8. php artisan migrate:refresh
 9. В .env файле поменять значение DB_HOST на mariadb (DB_HOST=mariadb)
 
+- Роуты находятся в файле routes\api.php
+- Контроллеры в app\Https\Controllers
+- Модели в app\Models
+- Миграции в database\migrations
+
 ## Добавить номер отеля.
 `POST: localhost/api/rooms/create_room`
 
-Принимает на вход текстовое описание и цену за ночь. 
+Параметры запроса:
+
+`description: string `
+
+`price: double`
+
+Принимает на вход (в теле запроса) текстовое описание и цену за ночь. 
 Возвращает `id` комнаты.
 
 Пример ответа:
@@ -24,7 +35,11 @@
 }`
 
 ## Удалить номер отеля и все его брони
-`POST: localhost/api/rooms/delete_room`
+`POST: localhost/api/rooms/delete_room/{id}`
+
+Параметры запроса:
+
+`room_id: int`
 
 Принимает на вход `id` комнаты.
 Возвращает `204` код.
@@ -42,25 +57,24 @@
 ## Получить список номеров отеля.
 `GET: localhost/api/rooms/get_rooms`
 
-Принимает на вход текстовое описание и цену за ночь.
-Возвращает `id` комнаты.
-
 Сортировка происходит на основе параметров запроса `sort_order` и `sort_field`
 
 Пример запроса:
 `curl -X GET localhost/api/rooms/get_rooms?sort_order=desc&sort_field=created_at`
 
-## Получить список номеров отеля.
-`GET: localhost/api/rooms/get_rooms`
-
-Принимает на вход текстовое описание и цену за ночь.
-Возвращает `id` комнаты.
-
 
 ## Добавить бронь. 
 `POST: localhost/api/bookings/create_booking`
 
-Принимает на вход существующий `ID` номера отеля, дату начала, дату окончания брони. 
+Параметры запроса:
+
+`room_id: int`
+
+`date_start: date`
+
+`date_end: date`
+
+Принимает на вход (в теле запроса) существующий `ID` номера отеля, дату начала, дату окончания брони. 
 
 Возвращает `ID` брони.
 
@@ -74,9 +88,9 @@
 }`
 
 ## Удалить бронь.
-`POST: localhost/api/bookings/delete_booking/{ID}`
+`POST: localhost/api/bookings/delete_booking/{id}`
 
-Принимает на вход `ID` брони
+Принимает на вход `id` брони
 
 Пример запроса: `curl -X DELETE "localhost/api/bookings/delete_booking/24"`
 
