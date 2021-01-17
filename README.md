@@ -1,62 +1,116 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+1. git pull
+2. cd ./avito_test
+3. composer install
+4. cd ./laradock
+5. docker-compose up -d nginx mariadb phpmyadmin workspace
+6. cd ..
+7. В .env файле поменять значение DB_HOST на 127.0.0.1 (DB_HOST=127.0.0.1)
+8. php artisan migrate:refresh
+9. В .env файле поменять значение DB_HOST на mariadb (DB_HOST=mariadb)
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Добавить номер отеля.
+`POST: localhost/api/rooms/create_room`
 
-## About Laravel
+Принимает на вход текстовое описание и цену за ночь. 
+Возвращает `id` комнаты.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Пример ответа:
+`{
+    "success": true,
+    "data": {
+        "room_id": 19
+    },
+    "message": "Room successfully created"
+}`
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Удалить номер отеля и все его брони
+`POST: localhost/api/rooms/delete_room`
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Принимает на вход `id` комнаты.
+Возвращает `204` код.
 
-## Learning Laravel
+Удаление соответствующих броней происходит с помощью `on delete cascade`.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+В случае если комнаты с указанным id не существует, возвращается ошибка:
+`{
+    "success": false,
+    "message": "Not Found",
+    "data": "Room with id 23231 not found"
+}
+`
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Получить список номеров отеля.
+`GET: localhost/api/rooms/get_rooms`
 
-## Laravel Sponsors
+Принимает на вход текстовое описание и цену за ночь.
+Возвращает `id` комнаты.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+Сортировка происходит на основе параметров запроса `sort_order` и `sort_field`
 
-### Premium Partners
+Пример запроса:
+`curl -X GET localhost/api/rooms/get_rooms?sort_order=desc&sort_field=created_at`
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/)**
-- **[OP.GG](https://op.gg)**
+## Получить список номеров отеля.
+`GET: localhost/api/rooms/get_rooms`
 
-## Contributing
+Принимает на вход текстовое описание и цену за ночь.
+Возвращает `id` комнаты.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
 
-## Code of Conduct
+## Добавить бронь. 
+`POST: localhost/api/bookings/create_booking`
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Принимает на вход существующий `ID` номера отеля, дату начала, дату окончания брони. 
 
-## Security Vulnerabilities
+Возвращает `ID` брони.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Пример ответа:
+`{
+    "success": true,
+    "data": {
+        "booking_id": 7
+    },
+    "message": "Booking created successfully"
+}`
 
-## License
+## Удалить бронь.
+`POST: localhost/api/bookings/delete_booking/{ID}`
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Принимает на вход `ID` брони
+
+Пример запроса: `curl -X DELETE "localhost/api/bookings/delete_booking/24"`
+
+В случае если брони с указанным id не существует, возвращается ошибка:
+`{
+    "success": false,
+    "message": "Not Found",
+    "data": "Booking with id 23231 not found"
+}
+`
+
+## Получить список броней номера отеля.
+`GET: localhost/api/bookings/get_bookings/{ID}`
+
+Принимает на вход `ID` номера отеля
+
+Пример запроса: `curl -X GET "localhost/api/bookings/get_bookings/24"`
+
+Пример ответа:
+`{
+    "success": true,
+    "data": [
+        {
+            "booking_id": 9,
+            "room_id": 4,
+            "date_start": "2019-05-01",
+            "date_end": "2020-03-05"
+        },
+        {
+            "booking_id": 10,
+            "room_id": 4,
+            "date_start": "2019-05-01",
+            "date_end": "2020-03-03"
+        }
+    ],
+    "message": "Booking loaded successfully"
+}`
